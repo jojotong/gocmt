@@ -25,6 +25,7 @@ var (
 
 var (
 	inPlace      = flag.Bool("i", false, "Make in-place editing")
+	addPackage   = flag.Bool("ap", false, "Add package comment")
 	template     = flag.String("t", "...", "Comment template")
 	dir          = flag.String("d", "", "Directory to process")
 	parenComment = flag.Bool("p", false, "Add comments to all const inside the parens if true")
@@ -62,7 +63,7 @@ func gocmtRun() int {
 		case fi.IsDir():
 			printError(fmt.Errorf("%s is a directory", path))
 		default:
-			if err := processFile(path, *template, *inPlace); err != nil {
+			if err := processFile(path, *template, *inPlace, *addPackage); err != nil {
 				printError(err)
 				return 1
 			}
@@ -72,7 +73,7 @@ func gocmtRun() int {
 	return 0
 }
 
-func processFile(filename, template string, inPlace bool) error {
+func processFile(filename, template string, inPlace bool, addPackage bool) error {
 	// skip test files and files in vendor/
 	if strings.HasSuffix(filename, "_test.go") || strings.Contains(filename, "/vendor/") {
 		return nil
@@ -88,7 +89,18 @@ func processFile(filename, template string, inPlace bool) error {
 		panic(err)
 	}
 
-	newBuf := buf.Bytes()
+	tmp := bytes.NewBuffer(nil)
+	line, _ := buf.ReadString('\n')
+	if addPackage {
+		if !strings.HasPrefix(line, "// Package") {
+			tmp.WriteString(strings.ReplaceAll(fmt.Sprintf("// %s ...\n", line), "package", "Package"))
+			modified = true
+		}
+		tmp.WriteString(line)
+		tmp.Write(buf.Bytes())
+	}
+
+	newBuf := tmp.Bytes()
 	if modified {
 		newBuf = tralingWsRegex.ReplaceAll(newBuf, []byte(""))
 		newBuf = newlinesRegex.ReplaceAll(newBuf, []byte("\n\n"))

@@ -1,4 +1,4 @@
-module github.com/cuonglm/gocmt
+module github.com/jojotong/gocmt
 
 go 1.19
 
