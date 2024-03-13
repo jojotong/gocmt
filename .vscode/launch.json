@@ -12,6 +12,7 @@
             "program": "${workspaceFolder}",
             "args": [
                 "-i",
+                "-ap",
                 "parse.go",
                 // "."
             ]

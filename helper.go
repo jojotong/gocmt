@@ -18,7 +18,7 @@ func printError(err error) {
 
 func walkFunc(path string, fi os.FileInfo, err error) error {
 	if err == nil && isGoFile(fi) {
-		err = processFile(path, *template, *inPlace)
+		err = processFile(path, *template, *inPlace, *addPackage)
 	}
 
 	if err != nil {

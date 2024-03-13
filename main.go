@@ -92,8 +92,8 @@ func processFile(filename, template string, inPlace bool, addPackage bool) error
 	tmp := bytes.NewBuffer(nil)
 	line, _ := buf.ReadString('\n')
 	if addPackage {
-		if !strings.HasPrefix(line, "// Package") {
-			tmp.WriteString(strings.ReplaceAll(fmt.Sprintf("// %s ...\n", line), "package", "Package"))
+		if !strings.Contains(line, "package main") && !strings.HasPrefix(line, "// Package") {
+			tmp.WriteString(strings.ReplaceAll(fmt.Sprintf("// %s ...\n", strings.TrimRight(line, "\n")), "package", "Package"))
 			modified = true
 		}
 		tmp.WriteString(line)
